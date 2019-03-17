@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <title>Vuew Series</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <div class="container">
+      <div class="lead-form">
+        <div class="box">
+          <div class="row">
+            <h1 class="text-center">Fill Out This Form</h1>
+
+            <div class="col-md-6">
+              <input type="text" class="form-control" placeholder="Starting ZIP" v-model="StartingZip">
+              <span class="city-span">{{StartingCity}}</span>
+            </div>
+            <div class="col-md-6">
+              <input type="text" class="form-control" placeholder="Ending ZIP" v-model="EndingZip">
+              <span class="city-span">{{EndingCity}}</span>
+            </div>            
+          </div>
+
+        </div>
+        <div class="row">
+          <div class="col-md-12">
+            <button class="btn btn-success btn-block">Submit</button>
+          </div>
+        </div>        
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.11/lodash.min.js"></script>
+  <script type="text/javascript">
+    var  app = new Vue({ 
+      el: "#app",
+      data: {
+        StartingZip:'',
+        EndingZip:'',
+        StartingCity:'',
+        EndingCity:''
+      },
+      watch: {
+        StartingZip: function() {
+          this.StartingCity ='';
+          if(this.StartingZip.length == 5) {
+           this.lookupStartingZip();
+         }
+       },
+       EndingZip: function() {
+        this.EndingCity ='';
+        if(this.EndingZip.length == 5) {
+         this.lookupEndingZip();
+       }
+     }
+   },
+   methods: {
+    lookupStartingZip:_.debounce(function() {
+      var app = this
+      app.StartingCity = "Searching....."
+      axios.get('http://ziptasticapi.com/'+app.StartingZip)
+      .then(function (response) {
+        app.StartingCity = response.data.city + ', ' + response.data.state
+          // handle success
+          console.log(response);
+        })  .catch(function (error) {
+          app.StartingCity = "Invalid ZipCode"
+          // handle error
+          console.log(error);
+        })
+      }, 500),
+    lookupEndingZip:_.debounce(function() {
+      var app = this
+      app.EndingCity = "Searching....."
+      axios.get('http://ziptasticapi.com/'+app.EndingZip)
+      .then(function (response) {
+        app.EndingCity = response.data.city + ', ' + response.data.state
+          // handle success
+          console.log(response);
+        })  .catch(function (error) {
+          app.EndingCity = "Invalid ZipCode"
+          // handle error
+          console.log(error);
+        })
+      }, 500)
+  }
+});
+</script>
+</body>
+</html>
